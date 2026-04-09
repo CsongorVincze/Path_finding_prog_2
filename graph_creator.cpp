@@ -26,7 +26,7 @@ public:
     // ez e fuggveny visszaadja es kiirja a kivant csucs kapcsolatait
     std::vector<int> GetConnections(std::string node_name = ""){
         if(Connections.size() == 0){
-            std::cout << "No connections!"<< std::endl;
+            std::cout <<"All connections of node " << node_name << ": No connections!"<< std::endl;
             return Connections;
         }
         std::cout << "All connections of node " << node_name << ": [";
@@ -39,8 +39,9 @@ public:
     }
 
     //igy tudunk kapcsolatot adni egy kivalasztott csucshoz
-    void Connect(const int& masik){
-        Connections.push_back(masik);
+    void Connect(Node& other){
+        Connections.push_back(other.index);
+        other.Connections.push_back(index);
     }
 
     // visszaadja es kiirja h hany csucs van osszesen
@@ -85,15 +86,18 @@ std::vector<Node> SweepNodes(const int& how_many_nodes){
 //random kapcsolatokat kreal egy meglevo grafban
 void RndConnect( std::vector<Node>& graph, int max_connections ){
     int len = graph.size();
-    for(std::vector<Node>::iterator it = graph.begin(); it < graph.end(); ++it){
-        it->Connections.clear();
+        // it->Connections.clear();
         for(int j = 0; j < max_connections; ++j){
-            int conn_ix = rand() % (2*len);
-            if(conn_ix <= len){
-                it->Connections.push_back(conn_ix);
+            int conn_ix_1 = rand() % len;
+            int conn_ix_2 = rand() % len;
+            
+            while(conn_ix_1 == conn_ix_2){
+                conn_ix_1 = rand() % len;
+                conn_ix_2 = rand() % len;
             }
+            graph[conn_ix_1].Connections.push_back(conn_ix_2);
+            graph[conn_ix_2].Connections.push_back(conn_ix_1);
         }
-    }
 }
 
 
@@ -113,7 +117,7 @@ int main(){
     Graph_1[0].GetNumNodes();
     Graph_1[0].GetAllNodes();
     Graph_1[0].GetConnections("Graph_1[0]");
-    RndConnect(Graph_1, 5);
+    RndConnect(Graph_1, 10);
     Graph_1[0].GetConnections("Graph_1[0]");
     
     std::cout << std::endl << std::endl;
@@ -125,17 +129,18 @@ int main(){
 
 
 
+
     return 0;
 }
 
-    // Node alma(3);
-    // alma.GetIndex();
 
-    // Node korte(4);
-
-    // alma.GetNumNodes();
-    // alma.GetAllNodes();
-    // alma.GetConnections();
-    // alma.Connect(4);
+    // Node alma(4);
     // alma.GetConnections("alma");
+    // Node korte(3);
+    // korte.GetConnections("korte");
+    // alma.Connect(korte);
+
+    // alma.GetConnections("alma");
+    // korte.GetConnections("korte");
+
 
