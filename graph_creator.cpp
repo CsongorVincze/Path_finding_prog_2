@@ -61,6 +61,8 @@ public:
 
     //random kapcsolatokat kreal egy meglevo grafban
     friend void RndConnect( std::vector<Node>& graph, int max_connections );
+
+    friend void PrintGraph( std::vector<Node>& graph );
 };
 
 
@@ -95,6 +97,14 @@ void RndConnect( std::vector<Node>& graph, int max_connections ){
 }
 
 
+// kiirja egymas ala minden csucs kapcsolatait
+void PrintGraph( std::vector<Node>& graph ){
+    for(std::vector<Node>::iterator it = graph.begin(); it < graph.end(); ++it){
+        (*it).GetConnections(std::to_string(it->index));
+    }
+}
+
+
 int main(){
 
     srand(time(0));
@@ -105,7 +115,9 @@ int main(){
     Graph_1[0].GetConnections("Graph_1[0]");
     RndConnect(Graph_1, 5);
     Graph_1[0].GetConnections("Graph_1[0]");
-
+    
+    std::cout << std::endl << std::endl;
+    PrintGraph(Graph_1);
 
 
 
