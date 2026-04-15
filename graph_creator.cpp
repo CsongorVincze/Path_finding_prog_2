@@ -2,6 +2,7 @@
 #include <vector>
 #include <cstdlib>
 #include <ctime>
+#include <tuple>
 
 #include <SFML/Graphics.hpp>
 #include <SFML/Window.hpp>
@@ -12,7 +13,7 @@ private:
     int index; // ez a mostani csucs indexe
     double x; // a csucs terbeli x koordinataja
     double y; // a csucs terbeli y koordinataja
-    std::vector<int> Connections; // tarolja a kapcsolt csucsok indexeit
+    std::vector<std::pair<int, int> > Connections; // tarolja a kapcsolt csucsok indexeit
     
     public:
 
@@ -50,28 +51,28 @@ private:
     }
 
     // ez a fuggveny visszaadja es kiirja a kivant csucs kapcsolatait
-    std::vector<int> GetConnections(std::string node_name = ""){
+    std::vector<std::pair<int, int> > GetConnections(std::string node_name = ""){
         if(Connections.size() == 0){
             std::cout <<"All connections of node " << node_name << ": No connections!"<< std::endl;
             return Connections;
         }
         std::cout << "All connections of node " << node_name << ": [";
-        for(std::vector<int>::iterator it = Connections.begin(); it < Connections.end() - 1; ++it){
-            std::cout << *it << ", ";
+        for(std::vector<std::pair<int, int> >::iterator it = Connections.begin(); it < Connections.end() - 1; ++it){
+            std::cout << "N: " << it->first << ", W: " << it->second << ", ";
         }
-        std::cout << *(Connections.end() - 1) << ']' << std::endl;
+        std::cout << "N: " << (Connections.end() - 1)->first << ", W: " << (Connections.end() - 1)->second << ']' << std::endl;
 
         return Connections;
     }
 
-    std::vector<int> GetConnectionsSilent() const{
+    std::vector<std::pair<int, int> > GetConnectionsSilent() const{
         return Connections;
     }
 
     //igy tudunk kapcsolatot adni egy kivalasztott csucshoz
-    void Connect(Node& other){
-        Connections.push_back(other.index);
-        other.Connections.push_back(index);
+    void Connect(Node& other, const int conn_w){
+        Connections.push_back({other.index, conn_w});
+        other.Connections.push_back({index, conn_w});
     }
 
     // visszaadja es kiirja h hany csucs van osszesen
@@ -84,7 +85,7 @@ private:
     // kiirjuk es visszaadjuk az osszes csucs indexet
     std::vector<int> GetAllNodes(){
         std::cout << "All node indexes: [";
-        for(std::vector<int>::iterator it = AllNodes.begin(); it <AllNodes.end() - 1; ++it){
+        for(std::vector<int>::iterator it = AllNodes.begin(); it < AllNodes.end() - 1; ++it){
             std::cout << *it << ", ";
         }
         std::cout << *(AllNodes.end() - 1) << ']' << std::endl;
@@ -92,11 +93,10 @@ private:
     }
 
     //random kapcsolatokat kreal egy meglevo grafban
-    friend void RndConnect( std::vector<Node>& graph, int max_connections );
+    friend void RndConnect( std::vector<Node>& graph, const int max_connections );
 
     friend void PrintGraph( std::vector<Node>& graph );
 };
-
 
 
 
@@ -121,13 +121,15 @@ void RndConnect( std::vector<Node>& graph, int max_connections ){
         for(int j = 0; j < max_connections; ++j){
             int conn_ix_1 = rand() % len;
             int conn_ix_2 = rand() % len;
+
+            int conn_w = rand() % 20;
             
             while(conn_ix_1 == conn_ix_2){
                 conn_ix_1 = rand() % len;
                 conn_ix_2 = rand() % len;
             }
-            graph[conn_ix_1].Connections.push_back(conn_ix_2);
-            graph[conn_ix_2].Connections.push_back(conn_ix_1);
+            graph[conn_ix_1].Connections.push_back({conn_ix_2, conn_w});
+            graph[conn_ix_2].Connections.push_back({conn_ix_1, conn_w});
         }
 }
 
@@ -155,6 +157,7 @@ int main(){
     PrintGraph(Graph_1);
 
 
+    
 
 
 
@@ -167,7 +170,8 @@ int main(){
 
 
 
-
+    sf::Font font;
+    font.openFromFile("Retro Floral.otf");
 
     // ezt a reszt meg ird ujra
     sf::RenderWindow window(sf::VideoMode({800, 600}), "Graf Vizualizacio (SFML)");
@@ -183,23 +187,34 @@ int main(){
         window.clear(sf::Color(35, 35, 45)); // Sötét háttér
 
 
-        std::vector<std::pair<int, int> > edges;
+        std::vector<std::tuple<int, int, int> > edges;
         for(int i = 0; i < Node::NumNodes; ++i){
-            std::vector<int> connections = Graph_1[i].GetConnectionsSilent();
-            for(int conn : connections){
-                if( i < conn ){
-                    edges.push_back({i, conn});
+            std::vector<std::pair<int, int> > connections = Graph_1[i].GetConnectionsSilent();
+            for(std::pair<int, int> conn : connections){
+                if( i < conn.first ){
+                    edges.push_back(std::make_tuple(i, conn.first, conn.second));
                 }
             }
         }
 
         for(const auto edge : edges){
             sf::VertexArray line(sf::PrimitiveType::Lines, 2);
-            line[0].position = sf::Vector2f( Graph_1[edge.first].GetX(), Graph_1[edge.first].GetY() );
+            line[0].position = sf::Vector2f( Graph_1[std::get<0>(edge)].GetX(), Graph_1[std::get<0>(edge)].GetY() );
             line[0].color = sf::Color(180, 180, 180, 150);
 
-            line[1].position = sf::Vector2f( Graph_1[edge.second].GetX(), Graph_1[edge.second].GetY() );
+            line[1].position = sf::Vector2f( Graph_1[std::get<1>(edge)].GetX(), Graph_1[std::get<1>(edge)].GetY() );
             line[1].color = sf::Color(180, 180, 180, 150);
+
+            sf::Text text(font);
+            text.setCharacterSize(24);
+            text.setFillColor(sf::Color::Green);
+            text.setString(std::to_string(std::get<2>(edge)));
+
+            float midX = (float)(Graph_1[std::get<1>(edge)].GetX() + Graph_1[std::get<0>(edge)].GetX())/2;
+            float midY = (float)(Graph_1[std::get<1>(edge)].GetY() + Graph_1[std::get<0>(edge)].GetY())/2;
+            text.setPosition({midX + 1, midY + 1});
+
+            window.draw(text);
 
             window.draw(line);
         }
@@ -219,10 +234,13 @@ int main(){
             window.draw(circle);
         }
 
+        
+        
 
 
         window.display();
     }
+
 
 
 
