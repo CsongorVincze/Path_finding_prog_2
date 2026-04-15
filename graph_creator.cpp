@@ -3,19 +3,33 @@
 #include <cstdlib>
 #include <ctime>
 
+#include <SFML/Graphics.hpp>
+#include <SFML/Window.hpp>
+#include <SFML/System.hpp>
+
 class Node {
 private:
     int index; // ez a mostani csucs indexe
+    double x; // a csucs terbeli x koordinataja
+    double y; // a csucs terbeli y koordinataja
     std::vector<int> Connections; // tarolja a kapcsolt csucsok indexeit
+    
+    public:
+
     static int NumNodes; // hany csucs van osszesen
     static std::vector<int> AllNodes; //eltarolja a csucsok indexeit
-
-public:
-    //ctor
-    Node(int i) : index(i) {
+    //ctor terbeli koordinatakkal
+    Node(int i, double x_pos, double y_pos) : index(i), x(x_pos), y(y_pos) {
         NumNodes++;
         AllNodes.push_back(i);
     }
+
+    //ctor random terbeli koordinatakkal
+    Node(int i) : index(i), x( rand() % 800 ), y( rand() % 600 ) {
+        NumNodes++;
+        AllNodes.push_back(i);
+    }
+
 
     //visszaadja egy csucs indexet (foleg teszteleshez)
     int GetIndex(){
@@ -23,7 +37,19 @@ public:
         return index;
     }
 
-    // ez e fuggveny visszaadja es kiirja a kivant csucs kapcsolatait
+    int GetIndexScilent(){
+        return index;
+    }
+
+    double GetX() const{
+        return x;
+    }
+
+    double GetY() const{
+        return y;
+    }
+
+    // ez a fuggveny visszaadja es kiirja a kivant csucs kapcsolatait
     std::vector<int> GetConnections(std::string node_name = ""){
         if(Connections.size() == 0){
             std::cout <<"All connections of node " << node_name << ": No connections!"<< std::endl;
@@ -38,6 +64,10 @@ public:
         return Connections;
     }
 
+    std::vector<int> GetConnectionsSilent() const{
+        return Connections;
+    }
+
     //igy tudunk kapcsolatot adni egy kivalasztott csucshoz
     void Connect(Node& other){
         Connections.push_back(other.index);
@@ -49,6 +79,7 @@ public:
         std::cout << NumNodes << std::endl;
         return NumNodes;
     }
+
 
     // kiirjuk es visszaadjuk az osszes csucs indexet
     std::vector<int> GetAllNodes(){
@@ -124,6 +155,74 @@ int main(){
     PrintGraph(Graph_1);
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    // ezt a reszt meg ird ujra
+    sf::RenderWindow window(sf::VideoMode({800, 600}), "Graf Vizualizacio (SFML)");
+    window.setFramerateLimit(60);
+
+    while (window.isOpen()) {
+        while (const std::optional<sf::Event> event = window.pollEvent()) {
+            if (event->is<sf::Event::Closed>()) {
+                window.close();
+            }
+        }
+
+        window.clear(sf::Color(35, 35, 45)); // Sötét háttér
+
+
+        std::vector<std::pair<int, int> > edges;
+        for(int i = 0; i < Node::NumNodes; ++i){
+            std::vector<int> connections = Graph_1[i].GetConnectionsSilent();
+            for(int conn : connections){
+                if( i < conn ){
+                    edges.push_back({i, conn});
+                }
+            }
+        }
+
+        for(const auto edge : edges){
+            sf::VertexArray line(sf::PrimitiveType::Lines, 2);
+            line[0].position = sf::Vector2f( Graph_1[edge.first].GetX(), Graph_1[edge.first].GetY() );
+            line[0].color = sf::Color(180, 180, 180, 150);
+
+            line[1].position = sf::Vector2f( Graph_1[edge.second].GetX(), Graph_1[edge.second].GetY() );
+            line[1].color = sf::Color(180, 180, 180, 150);
+
+            window.draw(line);
+        }
+
+        double node_radius = 18.0;
+        for(int i = 0; i < Node::NumNodes; ++i){
+            sf::CircleShape circle(node_radius);
+            circle.setFillColor(sf::Color(70, 200, 120));
+            circle.setOutlineThickness(3.0);
+            circle.setOutlineColor(sf::Color(255, 255, 255));
+
+            circle.setPosition({
+                // sf::Vector2f( Graph_1[i].GetX(), Graph_1[i].GetY() );
+                Graph_1[i].GetX() - node_radius,
+                Graph_1[i].GetY() - node_radius
+            });
+            window.draw(circle);
+        }
+
+
+
+        window.display();
+    }
 
 
 
