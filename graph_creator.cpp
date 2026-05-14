@@ -14,19 +14,21 @@ private:
     double x; // a csucs terbeli x koordinataja
     double y; // a csucs terbeli y koordinataja
     std::vector<std::pair<int, int> > Connections; // tarolja a kapcsolt csucsok indexeit
+    double dist_from_zero;
+    int visited;
     
     public:
 
     static int NumNodes; // hany csucs van osszesen
     static std::vector<int> AllNodes; //eltarolja a csucsok indexeit
     //ctor terbeli koordinatakkal
-    Node(int i, double x_pos, double y_pos) : index(i), x(x_pos), y(y_pos) {
+    Node(int i, double x_pos, double y_pos, double d, int v) : index(i), x(x_pos), y(y_pos), dist_from_zero(d), visited(v) {
         NumNodes++;
         AllNodes.push_back(i);
     }
 
     //ctor random terbeli koordinatakkal
-    Node(int i) : index(i), x( rand() % 800 ), y( rand() % 600 ) {
+    Node(int i) : index(i), x( rand() % 800 ), y( rand() % 600 ), dist_from_zero( 10000 ), visited(0) {
         NumNodes++;
         AllNodes.push_back(i);
     }
@@ -51,7 +53,7 @@ private:
     }
 
     // ez a fuggveny visszaadja es kiirja a kivant csucs kapcsolatait
-    std::vector<std::pair<int, int> > GetConnections(std::string node_name = ""){
+    std::vector<std::pair<int, int> > GetConnections(std::string node_name = "") const{
         if(Connections.size() == 0){
             std::cout <<"All connections of node " << node_name << ": No connections!"<< std::endl;
             return Connections;
@@ -73,6 +75,26 @@ private:
     void Connect(Node& other, const int conn_w){
         Connections.push_back({other.index, conn_w});
         other.Connections.push_back({index, conn_w});
+    }
+
+    void Set_dist(double d){
+        dist_from_zero = d;
+    }
+
+    double Get_dist(){
+        return dist_from_zero;
+    }
+
+    void Set_visited(int v){
+        visited = v;
+    }
+
+    void Add_visited(int a){
+        visited += a;
+    }
+
+    int Get_visited(){
+        return visited;
     }
 
     // visszaadja es kiirja h hany csucs van osszesen
@@ -156,6 +178,38 @@ int main(){
     std::cout << std::endl << std::endl;
     PrintGraph(Graph_1);
 
+
+    Graph_1[0].Set_dist(0); // a kiindulo csucs tavoldaga 0
+    Graph_1[0].Set_visited(true);
+    int all_visited = 0; // megnoveljuk egyel ha egy csucsot teljesen megvizsgaltunk
+    Node* current = &Graph_1[0];
+
+    while(all_visited < Graph_1.size()){ //addig megy ameddig minden csucsot vegigneztunk
+        for(auto ix:current->GetConnectionsSilent()){ // az adott csucsnak megnezzuk a kapcsolatait
+            int viz_now = Graph_1[ix.first].Get_visited();
+            int viz_max = Graph_1[ix.first].GetConnections().size();
+            if(viz_now != viz_max){ // ha meg nincs teljesen bejarva akkor odamegyunk
+                if(Graph_1[ix.first].Get_dist() > current->Get_dist() + ix.second){ // ha az igy kapott tavolsag kisebb 
+                    Graph_1[ix.first].Set_dist(current->Get_dist() + ix.second); // -> arra allitjuk a tavolsagat
+                }
+                Graph_1[ix.first].Add_visited(1); // megnoveljuk h hanyszor latogattuk a csucsot
+                if(viz_now == viz_max){ // ha eppen most lett meg az utolso
+                    all_visited++; // az osszes latogatasi szamot megemeljuk
+                }
+                current->Add_visited(1); // az aktualis kiindulo csucs latogatasi szamat is noveljuk
+            }
+        }
+        all_visited++;
+        
+        for(auto ix : current->GetConnections()){ //most uj csucsot valasztunk
+            if(Graph_1[ix.first].Get_visited() != Graph_1[ix.first].GetConnections().size()){ // ha van meg nem teljesen bejart csucs
+                current = &Graph_1[ix.first]; // akkor az lesz az uj csucs
+                break;
+            }//! mit csinalunk a legvegen?
+
+
+        }
+    }
 
     
 
