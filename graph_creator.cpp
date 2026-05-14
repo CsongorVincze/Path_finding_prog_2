@@ -3,6 +3,7 @@
 #include <cstdlib>
 #include <ctime>
 #include <tuple>
+#include <optional>
 
 #include <SFML/Graphics.hpp>
 #include <SFML/Window.hpp>
@@ -28,7 +29,7 @@ private:
     }
 
     //ctor random terbeli koordinatakkal
-    Node(int i) : index(i), x( rand() % 800 ), y( rand() % 600 ), dist_from_zero( 10000 ), visited(0) {
+    Node(int i) : index(i), x( rand() % 700 ), y( rand() % 550 ), dist_from_zero( 10000 ), visited(0) {
         NumNodes++;
         AllNodes.push_back(i);
     }
@@ -59,7 +60,7 @@ private:
             return Connections;
         }
         std::cout << "All connections of node " << node_name << ": [";
-        for(std::vector<std::pair<int, int> >::iterator it = Connections.begin(); it < Connections.end() - 1; ++it){
+        for(auto it = Connections.begin(); it < Connections.end() - 1; ++it){
             std::cout << "N: " << it->first << ", W: " << it->second << ", ";
         }
         std::cout << "N: " << (Connections.end() - 1)->first << ", W: " << (Connections.end() - 1)->second << ']' << std::endl;
@@ -141,15 +142,26 @@ void RndConnect( std::vector<Node>& graph, int max_connections ){
     int len = graph.size();
         // it->Connections.clear();
         for(int j = 0; j < max_connections; ++j){
-            int conn_ix_1 = rand() % len;
-            int conn_ix_2 = rand() % len;
 
-            int conn_w = rand() % 20;
-            
-            while(conn_ix_1 == conn_ix_2){
+            bool duplicate;
+            int conn_ix_1, conn_ix_2, conn_w;
+            do{
+                duplicate = false;
                 conn_ix_1 = rand() % len;
                 conn_ix_2 = rand() % len;
+                conn_w = rand() % 20;
+                if (conn_ix_1 == conn_ix_2){
+                    duplicate = true;
+                }
+
+                for(auto ix : graph[conn_ix_1].Connections){
+                    if (ix.first == conn_ix_2){
+                        duplicate = true;
+                    }
+                }
             }
+            while(duplicate);
+
             graph[conn_ix_1].Connections.push_back({conn_ix_2, conn_w});
             graph[conn_ix_2].Connections.push_back({conn_ix_1, conn_w});
         }
@@ -238,7 +250,7 @@ int main(){
             }
         }
 
-        window.clear(sf::Color(35, 35, 45)); // Sötét háttér
+        window.clear(sf::Color(35, 35, 45)); // sotet hatter
 
 
         std::vector<std::tuple<int, int, int> > edges;
@@ -260,20 +272,20 @@ int main(){
             line[1].color = sf::Color(180, 180, 180, 150);
 
             sf::Text text(font);
-            text.setCharacterSize(24);
+            text.setCharacterSize(12);
             text.setFillColor(sf::Color::Green);
             text.setString(std::to_string(std::get<2>(edge)));
 
             float midX = (float)(Graph_1[std::get<1>(edge)].GetX() + Graph_1[std::get<0>(edge)].GetX())/2;
             float midY = (float)(Graph_1[std::get<1>(edge)].GetY() + Graph_1[std::get<0>(edge)].GetY())/2;
-            text.setPosition({midX + 1, midY + 1});
+            text.setPosition({midX, midY});
 
             window.draw(text);
 
             window.draw(line);
         }
 
-        double node_radius = 18.0;
+        double node_radius = 5.0;
         for(int i = 0; i < Node::NumNodes; ++i){
             sf::CircleShape circle(node_radius);
             circle.setFillColor(sf::Color(70, 200, 120));
@@ -282,11 +294,24 @@ int main(){
 
             circle.setPosition({
                 // sf::Vector2f( Graph_1[i].GetX(), Graph_1[i].GetY() );
-                Graph_1[i].GetX() - node_radius,
-                Graph_1[i].GetY() - node_radius
+                (float)Graph_1[i].GetX() - node_radius,
+                (float)Graph_1[i].GetY() - node_radius
             });
             window.draw(circle);
+
+            sf::Text dist_text(font);
+            dist_text.setCharacterSize(18);
+            dist_text.setFillColor(sf::Color::White);
+            int dist_val = (int)Graph_1[i].Get_dist();
+            dist_text.setString(std::to_string(dist_val));
+            dist_text.setPosition({
+                (float)(Graph_1[i].GetX()),
+                (float)(Graph_1[i].GetY())
+            });
+
+            window.draw(dist_text);
         }
+
 
         
         
