@@ -16,20 +16,20 @@ private:
     double y; // a csucs terbeli y koordinataja
     std::vector<std::pair<int, int> > Connections; // tarolja a kapcsolt csucsok indexeit
     double dist_from_zero;
-    int visited;
+    bool visited;
     
     public:
 
     static int NumNodes; // hany csucs van osszesen
     static std::vector<int> AllNodes; //eltarolja a csucsok indexeit
     //ctor terbeli koordinatakkal
-    Node(int i, double x_pos, double y_pos, double d, int v) : index(i), x(x_pos), y(y_pos), dist_from_zero(d), visited(v) {
+    Node(int i, double x_pos, double y_pos, double d, bool v) : index(i), x(x_pos), y(y_pos), dist_from_zero(d), visited(v) {
         NumNodes++;
         AllNodes.push_back(i);
     }
 
     //ctor random terbeli koordinatakkal
-    Node(int i) : index(i), x( rand() % 700 ), y( rand() % 550 ), dist_from_zero( 10000 ), visited(0) {
+    Node(int i) : index(i), x( rand() % 700 ), y( rand() % 550 ), dist_from_zero( 10000 ), visited(false) {
         NumNodes++;
         AllNodes.push_back(i);
     }
@@ -54,7 +54,7 @@ private:
     }
 
     // ez a fuggveny visszaadja es kiirja a kivant csucs kapcsolatait
-    std::vector<std::pair<int, int> > GetConnections(std::string node_name = "") const{
+    const std::vector<std::pair<int, int> >& GetConnectionsLoud(std::string node_name = "") const{
         if(Connections.size() == 0){
             std::cout <<"All connections of node " << node_name << ": No connections!"<< std::endl;
             return Connections;
@@ -68,7 +68,7 @@ private:
         return Connections;
     }
 
-    std::vector<std::pair<int, int> > GetConnectionsSilent() const{
+    const std::vector<std::pair<int, int> >& GetConnections() const{
         return Connections;
     }
 
@@ -94,7 +94,7 @@ private:
         visited += a;
     }
 
-    int Get_visited(){
+    bool Get_visited(){
         return visited;
     }
 
@@ -171,9 +171,32 @@ void RndConnect( std::vector<Node>& graph, int max_connections ){
 // kiirja egymas ala minden csucs kapcsolatait
 void PrintGraph( std::vector<Node>& graph ){
     for(std::vector<Node>::iterator it = graph.begin(); it < graph.end(); ++it){
-        (*it).GetConnections(std::to_string(it->index));
+        (*it).GetConnectionsLoud(std::to_string(it->index));
     }
 }
+// maga az utkereso algo
+void Dijkstra(std::vector<Node>& Graph, int allexplored=0){
+    if(allexplored == Graph.size()){std::cout << "kaki" << std::endl; return;}
+    int min_dist = 10000; std::vector<Node>::iterator it_v = Graph.end(); // megkeressuk azt a felfedezetlen pontot amiknek a tavolsaga a legkisebb
+    
+    for(std::vector<Node>::iterator it = Graph.begin(); it != Graph.end(); ++it){
+        if(! it->Get_visited() && it->Get_dist() < min_dist){
+            min_dist = it->Get_dist();
+            it_v = it;
+        }
+    }
+    if(it_v == Graph.end()){return;}
+    for(auto ic = it_v->GetConnections().begin(); ic != it_v->GetConnections().end(); ++ic){
+        if(!Graph[ic->first].Get_visited() && it_v->Get_dist() + ic->second < Graph[ic->first].Get_dist()){
+            Graph[ic->first].Set_dist(it_v->Get_dist() + ic->second);
+        }
+    }
+    it_v->Set_visited(true);
+    allexplored++;
+    Dijkstra(Graph, allexplored);
+}
+
+
 
 
 int main(){
@@ -183,47 +206,50 @@ int main(){
     std::vector<Node> Graph_1 = SweepNodes(10);
     Graph_1[0].GetNumNodes();
     Graph_1[0].GetAllNodes();
-    Graph_1[0].GetConnections("Graph_1[0]");
+    Graph_1[0].GetConnectionsLoud("Graph_1[0]");
     RndConnect(Graph_1, 10);
-    Graph_1[0].GetConnections("Graph_1[0]");
+    Graph_1[0].GetConnectionsLoud("Graph_1[0]");
     
     std::cout << std::endl << std::endl;
     PrintGraph(Graph_1);
+    Graph_1[0].Set_dist(0);
+    Dijkstra(Graph_1, 0);
 
 
-    Graph_1[0].Set_dist(0); // a kiindulo csucs tavoldaga 0
-    Graph_1[0].Set_visited(true);
-    int all_visited = 0; // megnoveljuk egyel ha egy csucsot teljesen megvizsgaltunk
-    Node* current = &Graph_1[0];
+    // Graph_1[0].Set_dist(0); // a kiindulo csucs tavoldaga 0
+    // Graph_1[0].Set_visited(true);
+    // int all_visited = 0; // megnoveljuk egyel ha egy csucsot teljesen megvizsgaltunk
+    // Node* current = &Graph_1[0];
 
-    while(all_visited < Graph_1.size()){ //addig megy ameddig minden csucsot vegigneztunk
-        for(auto ix:current->GetConnectionsSilent()){ // az adott csucsnak megnezzuk a kapcsolatait
-            int viz_now = Graph_1[ix.first].Get_visited();
-            int viz_max = Graph_1[ix.first].GetConnections().size();
-            if(viz_now != viz_max){ // ha meg nincs teljesen bejarva akkor odamegyunk
-                if(Graph_1[ix.first].Get_dist() > current->Get_dist() + ix.second){ // ha az igy kapott tavolsag kisebb 
-                    Graph_1[ix.first].Set_dist(current->Get_dist() + ix.second); // -> arra allitjuk a tavolsagat
-                }
-                Graph_1[ix.first].Add_visited(1); // megnoveljuk h hanyszor latogattuk a csucsot
-                if(viz_now == viz_max){ // ha eppen most lett meg az utolso
-                    all_visited++; // az osszes latogatasi szamot megemeljuk
-                }
-                current->Add_visited(1); // az aktualis kiindulo csucs latogatasi szamat is noveljuk
-            }
-        }
-        all_visited++;
+    // while(all_visited < Graph_1.size()){ //addig megy ameddig minden csucsot vegigneztunk
+    //     for(auto ix:current->GetConnectionsSilent()){ // az adott csucsnak megnezzuk a kapcsolatait
+    //         int viz_now = Graph_1[ix.first].Get_visited();
+    //         int viz_max = Graph_1[ix.first].GetConnections().size();
+    //         if(viz_now != viz_max){ // ha meg nincs teljesen bejarva akkor odamegyunk
+    //             if(Graph_1[ix.first].Get_dist() > current->Get_dist() + ix.second){ // ha az igy kapott tavolsag kisebb 
+    //                 Graph_1[ix.first].Set_dist(current->Get_dist() + ix.second); // -> arra allitjuk a tavolsagat
+    //             }
+    //             Graph_1[ix.first].Add_visited(1); // megnoveljuk h hanyszor latogattuk a csucsot
+    //             if(viz_now == viz_max){ // ha eppen most lett meg az utolso
+    //                 all_visited++; // az osszes latogatasi szamot megemeljuk
+    //             }
+    //             current->Add_visited(1); // az aktualis kiindulo csucs latogatasi szamat is noveljuk
+    //         }
+    //     }
+    //     all_visited++;
         
-        for(auto ix : current->GetConnections()){ //most uj csucsot valasztunk
-            if(Graph_1[ix.first].Get_visited() != Graph_1[ix.first].GetConnections().size()){ // ha van meg nem teljesen bejart csucs
-                current = &Graph_1[ix.first]; // akkor az lesz az uj csucs
-                break;
-            }//! mit csinalunk a legvegen?
+    //     for(auto ix : current->GetConnections()){ //most uj csucsot valasztunk
+    //         if(Graph_1[ix.first].Get_visited() != Graph_1[ix.first].GetConnections().size()){ // ha van meg nem teljesen bejart csucs
+    //             current = &Graph_1[ix.first]; // akkor az lesz az uj csucs
+    //             break;
+    //         }//! mit csinalunk a legvegen?
 
 
-        }
-    }
+    //     }
+    // }
 
     
+
 
 
 
@@ -255,7 +281,7 @@ int main(){
 
         std::vector<std::tuple<int, int, int> > edges;
         for(int i = 0; i < Node::NumNodes; ++i){
-            std::vector<std::pair<int, int> > connections = Graph_1[i].GetConnectionsSilent();
+            std::vector<std::pair<int, int> > connections = Graph_1[i].GetConnections();
             for(std::pair<int, int> conn : connections){
                 if( i < conn.first ){
                     edges.push_back(std::make_tuple(i, conn.first, conn.second));
