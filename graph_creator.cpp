@@ -4,6 +4,8 @@
 #include <ctime>
 #include <tuple>
 #include <optional>
+#include <algorithm>
+#include <cmath>
 
 #include <SFML/Graphics.hpp>
 #include <SFML/Window.hpp>
@@ -17,19 +19,20 @@ private:
     std::vector<std::pair<int, int> > Connections; // tarolja a kapcsolt csucsok indexeit
     double dist_from_zero;
     bool visited;
+    int from; // honnet jottunk ide
     
     public:
 
     static int NumNodes; // hany csucs van osszesen
     static std::vector<int> AllNodes; //eltarolja a csucsok indexeit
     //ctor terbeli koordinatakkal
-    Node(int i, double x_pos, double y_pos, double d, bool v) : index(i), x(x_pos), y(y_pos), dist_from_zero(d), visited(v) {
+    Node(int i, double x_pos, double y_pos, double d, bool v) : index(i), x(x_pos), y(y_pos), dist_from_zero(d), visited(v), from(-1) {
         NumNodes++;
         AllNodes.push_back(i);
     }
 
     //ctor random terbeli koordinatakkal
-    Node(int i) : index(i), x( rand() % 700 ), y( rand() % 550 ), dist_from_zero( 10000 ), visited(false) {
+    Node(int i) : index(i), x( rand() % 700 ), y( rand() % 550 ), dist_from_zero( 10000 ), visited(false), from(-1) {
         NumNodes++;
         AllNodes.push_back(i);
     }
@@ -96,6 +99,13 @@ private:
 
     bool Get_visited(){
         return visited;
+    }
+
+    int Get_from(){
+        return from;
+    }
+    void Set_from(int f){
+        from = f;
     }
 
     // visszaadja es kiirja h hany csucs van osszesen
@@ -189,11 +199,23 @@ void Dijkstra(std::vector<Node>& Graph, int allexplored=0){
     for(auto ic = it_v->GetConnections().begin(); ic != it_v->GetConnections().end(); ++ic){
         if(!Graph[ic->first].Get_visited() && it_v->Get_dist() + ic->second < Graph[ic->first].Get_dist()){
             Graph[ic->first].Set_dist(it_v->Get_dist() + ic->second);
+            Graph[ic->first].Set_from(it_v->GetIndex());
         }
     }
     it_v->Set_visited(true);
     allexplored++;
     Dijkstra(Graph, allexplored);
+}
+
+std::vector<int> Trace(std::vector<Node>& Graph, int destination){
+    Graph[0].Set_from(-1); int i = destination;
+    std::vector<int> tr;
+    while(i >= 0){
+        tr.push_back(i);
+        i = Graph[i].Get_from();
+    }
+    std::reverse(tr.begin(), tr.end());
+    return tr;
 }
 
 
@@ -215,38 +237,14 @@ int main(){
     Graph_1[0].Set_dist(0);
     Dijkstra(Graph_1, 0);
 
-
-    // Graph_1[0].Set_dist(0); // a kiindulo csucs tavoldaga 0
-    // Graph_1[0].Set_visited(true);
-    // int all_visited = 0; // megnoveljuk egyel ha egy csucsot teljesen megvizsgaltunk
-    // Node* current = &Graph_1[0];
-
-    // while(all_visited < Graph_1.size()){ //addig megy ameddig minden csucsot vegigneztunk
-    //     for(auto ix:current->GetConnectionsSilent()){ // az adott csucsnak megnezzuk a kapcsolatait
-    //         int viz_now = Graph_1[ix.first].Get_visited();
-    //         int viz_max = Graph_1[ix.first].GetConnections().size();
-    //         if(viz_now != viz_max){ // ha meg nincs teljesen bejarva akkor odamegyunk
-    //             if(Graph_1[ix.first].Get_dist() > current->Get_dist() + ix.second){ // ha az igy kapott tavolsag kisebb 
-    //                 Graph_1[ix.first].Set_dist(current->Get_dist() + ix.second); // -> arra allitjuk a tavolsagat
-    //             }
-    //             Graph_1[ix.first].Add_visited(1); // megnoveljuk h hanyszor latogattuk a csucsot
-    //             if(viz_now == viz_max){ // ha eppen most lett meg az utolso
-    //                 all_visited++; // az osszes latogatasi szamot megemeljuk
-    //             }
-    //             current->Add_visited(1); // az aktualis kiindulo csucs latogatasi szamat is noveljuk
-    //         }
-    //     }
-    //     all_visited++;
-        
-    //     for(auto ix : current->GetConnections()){ //most uj csucsot valasztunk
-    //         if(Graph_1[ix.first].Get_visited() != Graph_1[ix.first].GetConnections().size()){ // ha van meg nem teljesen bejart csucs
-    //             current = &Graph_1[ix.first]; // akkor az lesz az uj csucs
-    //             break;
-    //         }//! mit csinalunk a legvegen?
+    int destination;
+    std::cout << "What's your destination?" << std::endl;
+    std::cin >> destination;
+    std::vector<int> tr = Trace(Graph_1, destination); //!
 
 
-    //     }
-    // }
+
+
 
     
 
@@ -310,6 +308,28 @@ int main(){
 
             window.draw(line);
         }
+        // ! ezt nezd at
+        // Draw the thick highlighted path BEFORE drawing the node circles
+        for(size_t k = 0; k + 1 < tr.size(); ++k){
+            int n1 = tr[k];
+            int n2 = tr[k+1];
+            
+            float x1 = Graph_1[n1].GetX();
+            float y1 = Graph_1[n1].GetY();
+            float x2 = Graph_1[n2].GetX();
+            float y2 = Graph_1[n2].GetY();
+            
+            float length = std::sqrt((x2 - x1)*(x2 - x1) + (y2 - y1)*(y2 - y1));
+            float angle = std::atan2(y2 - y1, x2 - x1) * 180.f / 3.14159265f;
+            
+            sf::RectangleShape thickLine(sf::Vector2f(length, 5.f)); // 5 pixels wide
+            thickLine.setOrigin({0.f, 2.5f}); // Center vertically
+            thickLine.setPosition({x1, y1});
+            thickLine.setRotation(sf::degrees(angle));
+            thickLine.setFillColor(sf::Color(255, 50, 50, 200)); // Red, slightly transparent
+            
+            window.draw(thickLine);
+        }
 
         double node_radius = 5.0;
         for(int i = 0; i < Node::NumNodes; ++i){
@@ -337,9 +357,7 @@ int main(){
 
             window.draw(dist_text);
         }
-
-
-        
+        // ! nezd at idaig
         
 
 
@@ -355,14 +373,5 @@ int main(){
     return 0;
 }
 
-
-    // Node alma(4);
-    // alma.GetConnections("alma");
-    // Node korte(3);
-    // korte.GetConnections("korte");
-    // alma.Connect(korte);
-
-    // alma.GetConnections("alma");
-    // korte.GetConnections("korte");
 
 
