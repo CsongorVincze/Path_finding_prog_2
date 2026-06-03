@@ -1,0 +1,27 @@
+Csongor BG8SFC
+
+Főprogram fordítása:
+C:\msys64\mingw64\bin\g++.exe -std=c++17 -Wall -Wextra -pedantic main.cpp Node.cpp Ut.cpp GrafMuveletek.cpp -o utvonaltervezo.exe -IC:\msys64\SFML-3.0.2\include -LC:\msys64\SFML-3.0.2\lib -lsfml-graphics -lsfml-window -lsfml-system
+
+Tesztprogram fordítása:
+C:\msys64\mingw64\bin\g++.exe -std=c++17 -Wall -Wextra -pedantic teszt.cpp Node.cpp Ut.cpp GrafMuveletek.cpp -o teszt.exe
+
+Tesztprogram futása:
+Csúcsok száma: 5
+All node indexes: [0, 1, 2, 3, 4]
+All connections of node 0: [N: 1, W: 2, N: 3, W: 8]
+All connections of node 1: [N: 0, W: 2, N: 2, W: 3]
+All connections of node 2: [N: 1, W: 3, N: 4, W: 2]
+All connections of node 3: [N: 0, W: 8, N: 4, W: 1]
+All connections of node 4: [N: 3, W: 1, N: 2, W: 2]
+0
+0
+1
+2
+vége
+Útvonal 0-ból 4-be: 0 -> 1 -> 2 -> 4
+Visszaolvasott csúcsok száma: 5
+Kivétel teszt rendben: Érvénytelen célcsúcs.
+
+Főprogram mintafuttatás:
+A program random gráfot hoz létre, bekéri a célcsúcsot, majd SFML ablakban kirajzolja a gráfot és a piros útvonalat.

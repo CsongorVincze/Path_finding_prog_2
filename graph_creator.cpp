@@ -89,12 +89,8 @@ private:
         return dist_from_zero;
     }
 
-    void Set_visited(int v){
+    void Set_visited(bool v){
         visited = v;
-    }
-
-    void Add_visited(int a){
-        visited += a;
     }
 
     bool Get_visited(){
@@ -150,7 +146,7 @@ std::vector<Node> SweepNodes(const int& how_many_nodes){
 //random kapcsolatokat kreal egy meglevo grafban
 void RndConnect( std::vector<Node>& graph, int max_connections ){
     int len = graph.size();
-        // it->Connections.clear();
+        
         for(int j = 0; j < max_connections; ++j){
 
             bool duplicate;
@@ -186,7 +182,7 @@ void PrintGraph( std::vector<Node>& graph ){
 }
 // maga az utkereso algo
 void Dijkstra(std::vector<Node>& Graph, int allexplored=0){
-    if(allexplored == Graph.size()){std::cout << "kaki" << std::endl; return;}
+    if(allexplored == Graph.size()){std::cout << "vege" << std::endl; return;}
     int min_dist = 10000; std::vector<Node>::iterator it_v = Graph.end(); // megkeressuk azt a felfedezetlen pontot amiknek a tavolsaga a legkisebb
     
     for(std::vector<Node>::iterator it = Graph.begin(); it != Graph.end(); ++it){
@@ -228,9 +224,9 @@ int main(){
     std::vector<Node> Graph_1 = SweepNodes(10);
     Graph_1[0].GetNumNodes();
     Graph_1[0].GetAllNodes();
-    Graph_1[0].GetConnectionsLoud("Graph_1[0]");
+    // Graph_1[0].GetConnectionsLoud("Graph_1[0]");
     RndConnect(Graph_1, 10);
-    Graph_1[0].GetConnectionsLoud("Graph_1[0]");
+    // Graph_1[0].GetConnectionsLoud("Graph_1[0]");
     
     std::cout << std::endl << std::endl;
     PrintGraph(Graph_1);
@@ -309,7 +305,7 @@ int main(){
             window.draw(line);
         }
         // ! ezt nezd at
-        // Draw the thick highlighted path BEFORE drawing the node circles
+        
         for(size_t k = 0; k + 1 < tr.size(); ++k){
             int n1 = tr[k];
             int n2 = tr[k+1];
