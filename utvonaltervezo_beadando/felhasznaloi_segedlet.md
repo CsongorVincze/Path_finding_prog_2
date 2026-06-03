@@ -1,4 +1,4 @@
-Csongor BG8SFC
+Vincze Csongor BG8SFC
 
 # Útvonaltervező - felhasználói segédlet
 
@@ -11,7 +11,7 @@ A program véletlenszerű gráfot készít, majd megkeresi és megjeleníti a 0.
 Indítsd el az `utvonaltervezo.exe` fájlt. A program először a konzolban kiírja a létrehozott gráf kapcsolatait, majd bekéri a célcsúcs indexét:
 
 ```text
-What's your destination?
+Hova szeretnél eljutni?
 ```
 
 A gráf 10 csúcsot tartalmaz, ezért 0 és 9 közötti egész számot adj meg.
@@ -28,7 +28,7 @@ Példa:
 
 - **Zöld kör:** egy gráfcsúcs.
 - **Sötétkék szám a csúcs mellett, felső sor:** a csúcs indexe.
-- **Rózsaszín szám a csúcs mellett, alsó sor:** a 0. csúcstól számított Dijkstra-távolság.
+- **Rózsaszín szám a csúcs mellett, alsó sor:** a 0. csúcstól számított távolság.
 - **Szürke vonal:** két csúcs közötti él.
 - **Rózsaszín szám az él közelében:** az él súlya.
 - **Piros vastag vonal:** a 0. csúcsból a kiválasztott célcsúcsba vezető útvonal.

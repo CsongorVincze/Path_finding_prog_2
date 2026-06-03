@@ -1,4 +1,4 @@
-// Csongor BG8SFC
+// Vincze Csongor BG8SFC
 #include "GrafMuveletek.h"
 
 #include <iostream>

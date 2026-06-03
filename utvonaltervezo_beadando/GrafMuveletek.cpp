@@ -1,4 +1,4 @@
-// Csongor BG8SFC
+// Vincze Csongor BG8SFC
 #include "GrafMuveletek.h"
 
 #include <algorithm>
@@ -11,7 +11,7 @@ Graf<Node> SweepNodes(int how_many_nodes) {
     Node::NumNodes = 0;
     Node::AllNodes.clear();
 
-    // A visszatérő gráf továbbra is ugyanúgy indexelhető, mint az eredeti vector.
+    // gráf létrehozása
     Graf<Node> Graph;
     for (int i = 0; i < how_many_nodes; ++i) {
         // A Node(int) konstruktor véletlen koordinátákat ad a csúcsnak.
@@ -21,7 +21,7 @@ Graf<Node> SweepNodes(int how_many_nodes) {
 }
 
 void RndConnect(Graf<Node>& graph, int max_connections) {
-    // Az eredeti logika random csúcspárokat választott, ezt megtartottam.
+    // random csúcspárokat választunk
     int len = static_cast<int>(graph.size());
     if (len < 2) {
         throw std::runtime_error("Legalább két csúcs kell a kapcsolatokhoz.");
@@ -34,12 +34,12 @@ void RndConnect(Graf<Node>& graph, int max_connections) {
         int conn_w;
 
         do {
-            // Addig próbálkozunk, amíg nem önhurok és nem duplikált él.
+            // Addig próbálkozunk, amíg elkeruljuk az önhurkot és a duplikalt elelet
             duplicate = false;
             conn_ix_1 = rand() % len;
             conn_ix_2 = rand() % len;
             conn_w = rand() % 20;
-            // Az eredeti rand() % 20 adhatott nullát; itt csak a hibás súlyt javítjuk.
+            
             if (conn_w == 0) {
                 conn_w = 1;
             }
@@ -63,14 +63,14 @@ void RndConnect(Graf<Node>& graph, int max_connections) {
 }
 
 void PrintGraph(Graf<Node>& graph) {
-    // Konzolos ellenőrzéshez ugyanazt a formátumot használjuk, mint az eredeti.
+    // Konzolos ellenőrzéshez
     for (Graf<Node>::iterator it = graph.begin(); it < graph.end(); ++it) {
         (*it).GetConnectionsLoud(std::to_string(it->GetIndexScilent()));
     }
 }
 
 void Dijkstra(Graf<Node>& Graph, int allexplored) {
-    // Rekurzív szerkezetben maradt, mert az eredeti program is így működött.
+    // Rekurzív Dijkstra függvény
     if (allexplored == static_cast<int>(Graph.size())) {
         std::cout << "vége" << std::endl;
         // Nincs több elérhető, feldolgozatlan csúcs.
@@ -104,7 +104,7 @@ void Dijkstra(Graf<Node>& Graph, int allexplored) {
 
     it_v->Set_visited(true);
     allexplored++;
-    // Az eredeti programhoz hasonlóan rekurzívan folytatjuk.
+    //rekurzívan hivunk
     Dijkstra(Graph, allexplored);
 }
 
@@ -131,7 +131,7 @@ void SaveGraph(const Graf<Node>& graph, const std::string& file_name) {
     // A teljes gráfot soros szövegfájlba mentjük.
     std::ofstream file(file_name.c_str());
     if (!file) {
-        throw std::runtime_error("Nem sikerült megnyitni a mentési fájlt.");
+        throw std::runtime_error("Nem sikerült megnyitni a mentési fájlt, bocsi.");
     }
 
     file << graph.size() << '\n';
@@ -145,7 +145,7 @@ Graf<Node> LoadGraph(const std::string& file_name) {
     // A SaveGraph által írt formátumot olvassuk vissza.
     std::ifstream file(file_name.c_str());
     if (!file) {
-        throw std::runtime_error("Nem sikerült megnyitni a betöltendő fájlt.");
+        throw std::runtime_error("Nem sikerült megnyitni a betöltendő fájlt, bocsi.");
     }
 
     std::size_t size;

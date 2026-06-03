@@ -1,4 +1,4 @@
-// Csongor BG8SFC
+// Vincze Csongor BG8SFC
 #include "Node.h"
 
 #include <cstdlib>
@@ -9,14 +9,14 @@ std::vector<int> Node::AllNodes;
 Node::Node() : index(-1), x(0), y(0), dist_from_zero(10000), visited(false), from(-1) {
 }
 
-// Ez felel meg az eredeti, konkrét koordinátás konstruktornak.
+// konkrét koordinátás konstruktor
 Node::Node(int i, double x_pos, double y_pos, double d, bool v)
     : index(i), x(x_pos), y(y_pos), dist_from_zero(d), visited(v), from(-1) {
     NumNodes++;
     AllNodes.push_back(i);
 }
 
-// Az eredeti programban minden csúcs véletlen képernyőpozíciót kapott.
+// minden csúcs véletlen képernyőpozíciót kap
 Node::Node(int i)
     : index(i), x(rand() % 700), y(rand() % 550), dist_from_zero(10000), visited(false), from(-1) {
     NumNodes++;
@@ -41,7 +41,7 @@ double Node::GetY() const {
 }
 
 const std::vector<Ut>& Node::GetConnectionsLoud(std::string node_name) const {
-    // A kiírás formátuma szándékosan az eredetihez közeli maradt.
+    // kiírjuk a kapcsolatokat
     if (Connections.size() == 0) {
         std::cout << "All connections of node " << node_name << ": No connections!" << std::endl;
         return Connections;
@@ -123,7 +123,7 @@ std::ostream& operator<<(std::ostream& os, const Node& node) {
 }
 
 std::istream& operator>>(std::istream& is, Node& node) {
-    // A formátum pontosan az operator<< kimenetét olvassa vissza.
+    // az operator<< kimenetét olvassa vissza.
     std::size_t connection_count;
     is >> node.index >> node.x >> node.y >> node.dist_from_zero
        >> node.visited >> node.from >> connection_count;

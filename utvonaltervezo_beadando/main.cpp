@@ -1,4 +1,4 @@
-// Csongor BG8SFC
+// Vincze Csongor BG8SFC
 #include "GrafMuveletek.h"
 
 #include <SFML/Graphics.hpp>
@@ -17,26 +17,26 @@ int main() {
     try {
         srand(static_cast<unsigned int>(time(0)));
 
-        // Ez a blokk az eredeti főprogram gráfkészítő része.
+        // gráfkészítő rész
         Graf<Node> Graph_1 = SweepNodes(10);
         Graph_1[0].GetNumNodes();
         Graph_1[0].GetAllNodes();
         RndConnect(Graph_1, 10);
 
         std::cout << std::endl << std::endl;
-        // Az eredeti program is konzolra írta a random kapcsolatrendszert.
+        // konzolra írja a random kapcsolatrendszert.
         PrintGraph(Graph_1);
-        // Kötelező perzisztencia: a random gráfot elmentjük szövegfájlba.
+        // a random gráfot elmentjük szövegfájlba.
         SaveGraph(Graph_1, "graf_mentes.txt");
 
-        // A Dijkstra algoritmus kiindulópontja változatlanul a 0. csúcs.
+        // A Dijkstra algoritmus kiindulópontja a 0. csúcs.
         Graph_1[0].Set_dist(0);
         Dijkstra(Graph_1, 0);
 
         int destination;
-        std::cout << "What's your destination?" << std::endl;
+        std::cout << "Hova szeretnél eljutni?" << std::endl;
         std::cin >> destination;
-        // A Trace csak a célindexet kapja meg, ahogy az eredeti programban is.
+        // A Trace csak a célindexet kapja meg
         std::vector<int> tr = Trace(Graph_1, destination);
 
         sf::Font font;
@@ -44,7 +44,7 @@ int main() {
             throw std::runtime_error("Nem sikerült megnyitni a betűtípust.");
         }
 
-        // Az SFML ablak és a rajzolási ciklus az eredeti vizuális rész megőrzése.
+        // Az SFML ablak és a rajzolási ciklus
         sf::RenderWindow window(sf::VideoMode({800, 600}), "Gráf Vizualizáció (SFML)");
         window.setFramerateLimit(60);
 
@@ -83,7 +83,7 @@ int main() {
 
                 sf::Text text(font);
                 text.setCharacterSize(12);
-                // A feladatkérés szerint a gráf feliratai rózsaszínek.
+                // a gráf feliratai rózsaszínek.
                 text.setFillColor(sf::Color(255, 105, 180));
                 text.setString(std::to_string(std::get<2>(*edge)));
 
@@ -146,7 +146,7 @@ int main() {
                     static_cast<float>(Graph_1[i].GetY() + node_radius + 2.0)
                 );
 
-                // A csúcs saját indexcímkéje sötétkék, hogy elkülönüljön a távolságtól.
+                // A csúcs saját indexcímkéje sötétkék
                 sf::Text node_shadow(font);
                 node_shadow.setCharacterSize(22);
                 node_shadow.setFillColor(sf::Color(245, 245, 255, 230));
@@ -161,7 +161,7 @@ int main() {
                 node_text.setPosition(node_label_position);
                 window.draw(node_text);
 
-                // A Dijkstra-távolság rózsaszín címkeként, külön sorban jelenik meg.
+                // A Dijkstra-távolság rózsaszín címkeként jelenik meg.
                 sf::Text dist_shadow(font);
                 dist_shadow.setCharacterSize(18);
                 dist_shadow.setFillColor(sf::Color(10, 10, 15, 230));

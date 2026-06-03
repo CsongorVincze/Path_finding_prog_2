@@ -1,4 +1,4 @@
-// Csongor BG8SFC
+// Vincze Csongor BG8SFC
 #ifndef NODE_H
 #define NODE_H
 
@@ -23,12 +23,11 @@ public:
     static std::vector<int> AllNodes; // Eltárolja az összes csúcs indexét.
 
     Node();
-    // Eredeti konstruktor megadott koordinátákkal.
+    // konstruktor megadott koordinátákkal.
     Node(int i, double x_pos, double y_pos, double d, bool v);
-    // Eredeti konstruktor véletlen koordinátákkal.
+    // konstruktor véletlen koordinátákkal.
     explicit Node(int i);
 
-    // Az eredeti kódban ez kiírt, ezért ezt a viselkedést meghagytam.
     int GetIndex();
     int GetIndexScilent() const;
     double GetX() const;
@@ -38,7 +37,7 @@ public:
     const std::vector<Ut>& GetConnectionsLoud(std::string node_name = "") const;
     const std::vector<Ut>& GetConnections() const;
 
-    // Kétirányú kapcsolat létrehozása, ahogy az eredeti program is használta.
+    // Kétirányú kapcsolat létrehozása
     void Connect(Node& other, int conn_w);
     // Beolvasásnál praktikus: csak ehhez a csúcshoz ad kapcsolatot.
     void AddConnection(int other_index, int conn_w);
@@ -54,7 +53,7 @@ public:
     int GetNumNodes() const;
     std::vector<int> GetAllNodes() const;
 
-    // Perzisztens tárolás a házi feladat követelménye miatt.
+    // Perzisztens tárolás
     friend std::ostream& operator<<(std::ostream& os, const Node& node);
     friend std::istream& operator>>(std::istream& is, Node& node);
 };
