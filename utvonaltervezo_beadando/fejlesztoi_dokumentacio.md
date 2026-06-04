@@ -54,7 +54,7 @@ C:\msys64\mingw64\bin\g++.exe -std=c++17 -Wall -Wextra -pedantic teszt.cpp Node.
 
 `Graf.h`: a sablonos gráftípus deklarációja.
 
-`GrafMuveletek.h`, `GrafMuveletek.cpp`: gráflétrehozó, útkereső, kiíró, mentő és betöltő függvények.
+`GrafMuveletek.h`, `GrafMuveletek.cpp`: gráflétrehozó, útkereső, kiíró és mentő függvények.
 
 `teszt.cpp`: grafikus felület nélküli tesztprogram.
 
@@ -62,11 +62,9 @@ C:\msys64\mingw64\bin\g++.exe -std=c++17 -Wall -Wextra -pedantic teszt.cpp Node.
 
 `graf_mentes.txt`: a főprogram által mentett gráf.
 
-`teszt_graf_mentes.txt`: a tesztprogram által mentett gráf.
+`teszt_graf_mentes.txt`: a tesztprogram által létrehozott minta mentés.
 
 `tesztelesi_eredmenyek.txt`: a tesztelés eredményei.
-
-`README.md`: rövid fordítási és futtatási útmutató.
 
 `felhasznaloi_segedlet.md`: a program használatának leírása.
 
@@ -104,7 +102,6 @@ Fontosabb tagfüggvények:
 - `GetConnectionsLoud() const`: kiírja és visszaadja a csúcs kapcsolatait;
 - `GetConnections() const`: visszaadja a kapcsolatok konstans referenciáját;
 - `Connect(Node&, int)`: kétirányú utat hoz létre két csúcs között;
-- `AddConnection(int, int)`: egy kapcsolatot ad a csúcshoz;
 - `Set_dist()`, `Get_dist() const`: a Dijkstra-távolság kezelése;
 - `Set_visited()`, `Get_visited() const`: a feldolgozottsági állapot kezelése;
 - `Set_from()`, `Get_from() const`: az előző csúcs kezelése;
@@ -209,14 +206,13 @@ A célcsúcstól indulva a `from` mezőket követi vissza a 0. csúcsig. Az öss
 
 Érvénytelen célindex esetén `std::out_of_range` kivételt dob.
 
-### SaveGraph és LoadGraph
+### SaveGraph
 
 ```cpp
 void SaveGraph(const Graf<Node>& graph, const std::string& file_name);
-Graf<Node> LoadGraph(const std::string& file_name);
 ```
 
-A `SaveGraph` szövegfájlba menti a teljes gráfot. A `LoadGraph` ugyanebből a formátumból visszaállítja a csúcsokat, a kapcsolatokat és az algoritmus állapotadatait.
+A `SaveGraph` szövegfájlba menti a teljes gráfot. Először a csúcsok számát írja ki, majd minden csúcsot külön sorban ment a `Node::operator<<` segítségével. A függvény kivételt dob, ha a fájl nem nyitható meg.
 
 ## 6. Dijkstra algoritmus
 
@@ -237,7 +233,7 @@ A megvalósítás időigénye prioritási sor nélkül közelítőleg `O(V^2 + E
 
 ## 7. Perzisztens tárolás
 
-A teljes gráf szöveges formában menthető. A fájl első sora a csúcsok számát tartalmazza. Ezután minden sor egy csúcs teljes állapotát írja le:
+A teljes gráf szöveges formában menthető. A program nem tölt vissza teljes gráfot; a perzisztens funkció célja a létrehozott gráf állapotának elmentése. A fájl első sora a csúcsok számát tartalmazza. Ezután minden sor egy csúcs teljes állapotát írja le:
 
 ```text
 index x y távolság látogatott előző kapcsolatok_száma cél súly cél súly ...
@@ -260,6 +256,9 @@ A fenti sor jelentése:
 - az első kapcsolat az 1. csúcsba vezet 2-es súllyal;
 - a második kapcsolat a 3. csúcsba vezet 8-as súllyal.
 
+A `Node` és az `Ut` `operator>>` művelete megmarad, mert a tárgyi követelmény a `<<` és `>>` operátorok megfelelő átdefiniálását is előírja. A programban azonban nincs teljes gráfot betöltő függvény.
+
+
 ## 8. Kivételkezelés
 
 A program az alábbi hibákat kezeli kivételekkel:
@@ -268,7 +267,6 @@ A program az alábbi hibákat kezeli kivételekkel:
 - nulla vagy negatív útsúly;
 - érvénytelen célcsúcs;
 - sikertelen fájlmegnyitás mentéskor;
-- sikertelen fájlmegnyitás betöltéskor;
 - sikertelen betűtípus-betöltés.
 
 A főprogram és a tesztprogram `try-catch` blokkal kezeli a kivételeket, majd hibaüzenetet ír a konzolra.
@@ -314,7 +312,7 @@ A teszt ellenőrzi:
 - a Dijkstra algoritmust;
 - az útvonal visszafejtését;
 - a gráf mentését;
-- a gráf visszaolvasását;
+- a gráf fájlba mentését;
 - az érvénytelen célcsúcs kivételét.
 
 A teszt részletes kimenete a `tesztelesi_eredmenyek.txt` fájlban található.

@@ -68,10 +68,6 @@ void Node::Connect(Node& other, int conn_w) {
     other.Connections.push_back(Ut(index, conn_w));
 }
 
-void Node::AddConnection(int other_index, int conn_w) {
-    Connections.push_back(Ut(other_index, conn_w));
-}
-
 void Node::Set_dist(double d) {
     dist_from_zero = d;
 }
@@ -136,6 +132,9 @@ std::istream& operator>>(std::istream& is, Node& node) {
     for (std::size_t i = 0; i < connection_count; ++i) {
         Ut ut;
         is >> ut;
+        if (!is) {
+            return is;
+        }
         node.Connections.push_back(ut);
     }
     return is;

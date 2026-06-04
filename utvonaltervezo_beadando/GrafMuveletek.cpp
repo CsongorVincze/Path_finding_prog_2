@@ -7,7 +7,7 @@
 #include <stdexcept>
 
 Graf<Node> SweepNodes(int how_many_nodes) {
-    // Az eredeti statikus számlálókat új gráf készítésekor nullázzuk.
+    // A statikus számlálókat új gráf készítésekor nullázzuk.
     Node::NumNodes = 0;
     Node::AllNodes.clear();
 
@@ -131,7 +131,7 @@ void SaveGraph(const Graf<Node>& graph, const std::string& file_name) {
     // A teljes gráfot soros szövegfájlba mentjük.
     std::ofstream file(file_name.c_str());
     if (!file) {
-        throw std::runtime_error("Nem sikerült megnyitni a mentési fájlt, bocsi.");
+        throw std::runtime_error("Nem sikerült megnyitni a mentési fájlt.");
     }
 
     file << graph.size() << '\n';
@@ -139,26 +139,9 @@ void SaveGraph(const Graf<Node>& graph, const std::string& file_name) {
     for (Graf<Node>::const_iterator it = graph.begin(); it != graph.end(); ++it) {
         file << *it << '\n';
     }
-}
 
-Graf<Node> LoadGraph(const std::string& file_name) {
-    // A SaveGraph által írt formátumot olvassuk vissza.
-    std::ifstream file(file_name.c_str());
+    file.close();
     if (!file) {
-        throw std::runtime_error("Nem sikerült megnyitni a betöltendő fájlt, bocsi.");
+        throw std::runtime_error("Nem sikerült elmenteni a gráfot.");
     }
-
-    std::size_t size;
-    file >> size;
-    Graf<Node> graph(size);
-    Node::NumNodes = static_cast<int>(size);
-    Node::AllNodes.clear();
-
-    for (std::size_t i = 0; i < size; ++i) {
-        // A Node operator>> visszaállítja a csúcs kapcsolatait is.
-        file >> graph[i];
-        Node::AllNodes.push_back(static_cast<int>(i));
-    }
-
-    return graph;
 }

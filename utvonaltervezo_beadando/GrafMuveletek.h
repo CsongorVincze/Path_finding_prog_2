@@ -17,6 +17,5 @@ std::vector<int> Trace(Graf<Node>& Graph, int destination);
 
 // Perzisztencia: teljes gráf mentése és visszatöltése.
 void SaveGraph(const Graf<Node>& graph, const std::string& file_name);
-Graf<Node> LoadGraph(const std::string& file_name);
 
 #endif

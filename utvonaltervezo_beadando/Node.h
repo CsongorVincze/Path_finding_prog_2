@@ -39,8 +39,6 @@ public:
 
     // Kétirányú kapcsolat létrehozása
     void Connect(Node& other, int conn_w);
-    // Beolvasásnál praktikus: csak ehhez a csúcshoz ad kapcsolatot.
-    void AddConnection(int other_index, int conn_w);
 
     // Dijkstra állapotmezők kezelése.
     void Set_dist(double d);
